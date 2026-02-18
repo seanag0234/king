@@ -27,8 +27,9 @@ type Man struct {
 	Section   int // See mmark's documentation
 	Area      string
 	WorkGroup string
-	Template  string       // If empty [ManTemplate] is used.
-	Flags     []*kong.Flag // Any global flags that the should Application Node have. There are documented after the normal flags.
+	Template  string        // If empty [ManTemplate] is used.
+	Flags     []*kong.Flag  // Any global flags that the should Application Node have. There are documented after the normal flags.
+	Files     func() string // Markdown text returned for the Files section - if any. Needs to includes the header `## Files`.
 }
 
 // ManTemplate is the default manual page template used when generating a manual page. Where each function
@@ -44,6 +45,7 @@ type Man struct {
 //   - arguments: a rundown of each of the arguments this command has.
 //   - options: a list documenting each of the options.
 //   - globals: any global flags, from m.Flags.
+//   - files: a complete `## Files`... section.
 //
 // Note that the TOML manual header is always used.
 const ManTemplate = `{{name -}}
@@ -59,6 +61,8 @@ const ManTemplate = `{{name -}}
 {{options -}}
 
 {{globals -}}
+
+{{files -}}
 `
 
 // Out returns the manual in markdown form.
@@ -132,6 +136,12 @@ func (m *Man) Manual(k *kong.Node, path, altname, rootname string) {
 		"commands":    func() string { return commands(cmd) },
 		"options":     func() string { return options(cmd) },
 		"globals":     func() string { return globals(m.Flags) },
+		"files": func() string {
+			if m.Files == nil {
+				return ""
+			}
+			return m.Files()
+		},
 	}
 
 	if m.Template == "" {

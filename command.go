@@ -163,7 +163,7 @@ func toAction(action, shell string) string {
 	case "bash":
 		return action
 	case "fish":
-		return ""
+		return fishActions[action]
 	}
 	return ""
 }
@@ -174,4 +174,12 @@ var zshActions = map[string]string{
 	"group":     "_groups",
 	"user":      "_users",
 	"export":    "_parameters",
+}
+
+var fishActions = map[string]string{
+	"file":      "(__fish_complete_path)",
+	"directory": "(__fish_complete_directories)",
+	"group":     "(__fish_complete_groups)",
+	"user":      "(__fish_complete_users)",
+	"export":    "(set -n)",
 }

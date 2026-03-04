@@ -4,10 +4,16 @@
 {{- if not .Parent}}
 # {{rootName}}
 {{- else}}
-# {{path .}}
-complete -c {{rootName}} -f -n '{{subcommandCondition .}}' -a {{.Name}} -d '{{.Help}}'
+# {{path .}}{{if .Aliases}} ({{join .Aliases ", "}}){{end}}
+complete -c {{rootName}} -f -n '{{subcommandCondition .}}' -a {{.Name}} -d '{{escape .Help}}'
+{{- range .Aliases}}
+complete -c {{rootName}} -f -n '{{subcommandCondition $}}' -a {{.}} -d '{{escape $.Help}}'
+{{- end}}
 {{- end}}
 {{- range flagLines .}}
+{{.}}
+{{- end}}
+{{- range positionalLines .}}
 {{.}}
 {{- end}}
 {{range visibleChildren .}}
